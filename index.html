@@ -1,36 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <title>Сканер QR</title>
+    <title>Сканер QR для Telegram WebApp</title>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; }
-        #reader { width: 400px; margin: auto; padding: 10px; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #fafafa;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+        h2 {
+            margin: 24px 0 12px 0;
+            color: #333;
+        }
+        #reader {
+            width: 320px;
+            max-width: 96vw;
+            margin: 12px auto 0 auto;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px #0001;
+            padding: 10px;
+        }
+        #status {
+            margin: 18px 0 0 0;
+            font-size: 15px;
+            color: #999;
+        }
     </style>
 </head>
 <body>
-    <h3>Наведите камеру на QR-код</h3>
+    <h2>Наведите камеру на QR-код</h2>
     <div id="reader"></div>
+    <div id="status"></div>
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        // Проверка наличия объекта Telegram
+        function isTelegramWebApp() {
+            return typeof Telegram !== "undefined" && Telegram.WebApp;
+        }
+
+        // Стартуем после полной загрузки DOM
+        document.addEventListener("DOMContentLoaded", function () {
+            const status = document.getElementById("status");
             const html5QrCode = new Html5Qrcode("reader");
+
             html5QrCode.start(
-                { facingMode: "environment" },
-                { fps: 15, qrbox: 400 },
+                { facingMode: "environment" }, // основная камера
+                { fps: 15, qrbox: 250 },
                 qrCodeMessage => {
                     html5QrCode.stop().then(() => {
-                        if (typeof Telegram !== "undefined" && Telegram.WebApp) {
+                        status.textContent = "QR-код успешно считан!";
+                        // Если это Telegram WebApp — отправляем в бота
+                        if (isTelegramWebApp()) {
                             Telegram.WebApp.sendData(qrCodeMessage);
                             Telegram.WebApp.close();
                         } else {
-                            alert("QR-код: " + qrCodeMessage + "\n(открой через Telegram для передачи в бота)");
+                            // В браузере просто покажем QR-код
+                            alert(
+                                "QR-код: " + qrCodeMessage +
+                                "\n(Открой эту страницу через Telegram WebApp для автоматической передачи в бота)"
+                            );
                         }
                     });
+                },
+                errorMessage => {
+                    // Не ругаемся, если камера просто не нашла QR (стандартное поведение)
                 }
             ).catch(err => {
-                console.error("Ошибка запуска камеры:", err);
+                status.textContent = "Ошибка доступа к камере: " + err;
             });
+
+            // Состояние среды для отладки
+            if (!isTelegramWebApp()) {
+                status.innerHTML =
+                    "<b>Тестовый режим.</b><br>Откройте этот сканер через кнопку в Telegram-боте.";
+            }
         });
     </script>
 </body>
