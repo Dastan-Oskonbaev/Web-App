@@ -13,18 +13,24 @@
     <h3>Наведите камеру на QR-код</h3>
     <div id="reader"></div>
     <script>
-        const html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 15, qrbox: 400 },
-            qrCodeMessage => {
-                html5QrCode.stop().then(() => {
-                    Telegram.WebApp.sendData(qrCodeMessage);
-                    Telegram.WebApp.close();
-                });
-            }
-        ).catch(err => {
-            console.error("Ошибка запуска камеры:", err);
+        document.addEventListener('DOMContentLoaded', function () {
+            const html5QrCode = new Html5Qrcode("reader");
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 15, qrbox: 400 },
+                qrCodeMessage => {
+                    html5QrCode.stop().then(() => {
+                        if (typeof Telegram !== "undefined" && Telegram.WebApp) {
+                            Telegram.WebApp.sendData(qrCodeMessage);
+                            Telegram.WebApp.close();
+                        } else {
+                            alert("QR-код: " + qrCodeMessage + "\n(открой через Telegram для передачи в бота)");
+                        }
+                    });
+                }
+            ).catch(err => {
+                console.error("Ошибка запуска камеры:", err);
+            });
         });
     </script>
 </body>
