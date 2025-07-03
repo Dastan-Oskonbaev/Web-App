@@ -47,9 +47,15 @@
 
         // Стартуем после полной загрузки DOM
         document.addEventListener("DOMContentLoaded", function () {
-            const status = document.getElementById("status");
-            const html5QrCode = new Html5Qrcode("reader");
+    const status = document.getElementById("status");
 
+    // Debug-вывод: покажет есть ли Telegram и Telegram.WebApp
+    status.innerHTML = 'TG: ' + (typeof Telegram !== "undefined") +
+        '<br>WA: ' + (Telegram && Telegram.WebApp ? 'OK' : 'NO');
+
+    const html5QrCode = new Html5Qrcode("reader");
+    // ... твой дальнейший код
+});
             html5QrCode.start(
                 { facingMode: "environment" }, // основная камера
                 { fps: 15, qrbox: 250 },
