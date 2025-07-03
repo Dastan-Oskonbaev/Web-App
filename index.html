@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Сканер QR для Telegram WebApp</title>
-    
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
         body {
@@ -38,8 +37,6 @@
     <div id="reader"></div>
     <div id="status"></div>
     <script>
-        console.log("Telegram.WebApp: ", typeof Telegram !== "undefined" ? Telegram.WebApp : "NO");
-
         // Проверка наличия объекта Telegram
         function isTelegramWebApp() {
             return typeof Telegram !== "undefined" && Telegram.WebApp;
@@ -47,15 +44,15 @@
 
         // Стартуем после полной загрузки DOM
         document.addEventListener("DOMContentLoaded", function () {
-    const status = document.getElementById("status");
+            const status = document.getElementById("status");
 
-    // Debug-вывод: покажет есть ли Telegram и Telegram.WebApp
-    status.innerHTML = 'TG: ' + (typeof Telegram !== "undefined") +
-        '<br>WA: ' + (Telegram && Telegram.WebApp ? 'OK' : 'NO');
+            // --- DEBUG ВЫВОД ---
+            status.innerHTML = 'TG: ' + (typeof Telegram !== "undefined") +
+                '<br>WA: ' + (Telegram && Telegram.WebApp ? 'OK' : 'NO');
+            // -------------------
 
-    const html5QrCode = new Html5Qrcode("reader");
-    // ... твой дальнейший код
-});
+            const html5QrCode = new Html5Qrcode("reader");
+
             html5QrCode.start(
                 { facingMode: "environment" }, // основная камера
                 { fps: 15, qrbox: 250 },
@@ -84,8 +81,8 @@
 
             // Состояние среды для отладки
             if (!isTelegramWebApp()) {
-                status.innerHTML =
-                    "<b>Тестовый режим.</b><br>Откройте этот сканер через кнопку в Telegram-боте.";
+                status.innerHTML +=
+                    "<br><b>Тестовый режим.</b><br>Откройте этот сканер через кнопку в Telegram-боте.";
             }
         });
     </script>
