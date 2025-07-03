@@ -1,40 +1,38 @@
-<script src="https://unpkg.com/html5-qrcode"></script>
+    <div id="reader"></div>
 
-<!-- Контейнер для QR-сканера -->
-<div id="reader" style="width: 300px; margin-bottom: 10px;"></div>
+    <!-- Контейнер для сообщений -->
+    <div id="message-box" class="info">Готов к сканированию...</div>
 
-<!-- Контейнер для сообщений -->
-<div id="message-box" style="padding: 10px; border: 1px solid #ccc; border-radius: 5px; max-width: 300px;"></div>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const html5QrCode = new Html5Qrcode("reader");
+            const messageBox = document.getElementById("message-box");
 
-<script>
-    document.addEventListener("DOMContentLoaded", function () {
-        const html5QrCode = new Html5Qrcode("reader");
-        const messageBox = document.getElementById("message-box");
-
-        function showMessage(text, type = "info") {
-            messageBox.textContent = text;
-            messageBox.style.color = type === "error" ? "#ff4d4f" : "#28a745";
-            messageBox.style.backgroundColor = type === "error" ? "#ffe6e6" : "#e6ffed";
-        }
-
-        html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: 250 },
-            qrCodeMessage => {
-                html5QrCode.stop().then(() => {
-                    if (window.Telegram && Telegram.WebApp) {
-                        Telegram.WebApp.sendData(qrCodeMessage);
-                        showMessage("✅ Данные успешно отправлены!", "success");
-                        setTimeout(() => {
-                            Telegram.WebApp.close();
-                        }, 1000);
-                    } else {
-                        showMessage("❌ Telegram WebApp не найден!", "error");
-                    }
-                }).catch(err => {
-                    showMessage("❌ Ошибка остановки сканера: " + err, "error");
-                });
+            function showMessage(text, type = "info") {
+                messageBox.textContent = text;
+                messageBox.className = type;
             }
-        );
-    });
-</script>
+
+            html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                qrCodeMessage => {
+                    html5QrCode.stop().then(() => {
+                        if (window.Telegram && Telegram.WebApp) {
+                            Telegram.WebApp.sendData(qrCodeMessage);
+                            showMessage("✅ Данные успешно отправлены в Telegram", "success");
+                            setTimeout(() => {
+                                Telegram.WebApp.close();
+                            }, 1000);
+                        } else {
+                            showMessage("⚠️ Не в Telegram. Просто покажем QR: " + qrCodeMessage, "info");
+                        }
+                    }).catch(err => {
+                        showMessage("❌ Ошибка остановки сканера: " + err, "error");
+                    });
+                }
+            ).catch(err => {
+                showMessage("❌ Не удалось запустить сканер: " + err, "error");
+            });
+        });
+    </script>
