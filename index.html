@@ -1,13 +1,35 @@
 <script src="https://unpkg.com/html5-qrcode"></script>
-<div id="reader"></div>
+
+<!-- Контейнер для чата -->
+<div id="chat-box" style="border: 1px solid #ccc; padding: 10px; max-height: 200px; overflow-y: auto; margin-bottom: 10px;"></div>
+
+<!-- Контейнер для QR-сканера -->
+<div id="reader" style="width: 300px;"></div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const html5QrCode = new Html5Qrcode("reader");
+
         html5QrCode.start(
             { facingMode: "environment" },
             { fps: 10, qrbox: 250 },
             qrCodeMessage => {
-                alert(qrCodeMessage);
+                // Добавляем сообщение в чат
+                const chatBox = document.getElementById("chat-box");
+                const message = document.createElement("div");
+                message.textContent = `📩 QR: ${qrCodeMessage}`;
+                message.style.padding = "5px 0";
+                chatBox.appendChild(message);
+
+                // Прокручиваем вниз
+                chatBox.scrollTop = chatBox.scrollHeight;
+
+                // Остановить сканирование после первого успешного чтения
+                html5QrCode.stop().then(() => {
+                    console.log("Сканирование остановлено");
+                }).catch(err => {
+                    console.error("Ошибка остановки:", err);
+                });
             }
         );
     });
